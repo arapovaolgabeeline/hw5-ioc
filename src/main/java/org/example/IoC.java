@@ -1,12 +1,16 @@
 package org.example;
 
+import org.example.commands.UpdateIocResolveDependencyStrategyCommand;
+import org.example.interfaces.IoCStrategyUpdater;
+import org.example.interfaces.StrategyHolder;
+
 // 1. Интерфейс IoC устойчив к изменению требований.
 public class IoC {
-    private static StrategyHolder _strategy = new StrategyHolder() {
+    public static StrategyHolder _strategy = new StrategyHolder() { // todo должен быть защищенным
         @Override
         public <T> T resolve(String dependency, Object[] args) {
             if ("Update Ioc Resolve Dependency Strategy".equals(dependency)) {
-                return null;
+                return (T) new UpdateIocResolveDependencyStrategyCommand((IoCStrategyUpdater) args[0]);
             } else
             {
                 throw new IllegalArgumentException("Dependency " + dependency + " was not found.");
@@ -16,7 +20,7 @@ public class IoC {
 
     // 2. IoC предоставляет ровно один метод для всех операций. 1 балл
     public static <T> T resolve(String dependency, Object[] args) {
-        return (T)_strategy.resolve(dependency, args);
+        return (T) _strategy.resolve(dependency, args);
     }
 
 }
