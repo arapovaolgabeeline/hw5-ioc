@@ -1,6 +1,6 @@
 package org.example.commands;
 
-import org.example.IoC;
+import org.example.ioc.IoC;
 
 import org.example.interfaces.IoCStrategyUpdater;
 

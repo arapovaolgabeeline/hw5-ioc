@@ -2,9 +2,9 @@ package org.example;
 
 import org.example.commands.ICommand;
 import org.example.commands.UpdateIocResolveDependencyStrategyCommand;
-import org.example.commands.VoidCommand;
 import org.example.interfaces.IoCStrategyUpdater;
 import org.example.interfaces.StrategyHolder;
+import org.example.ioc.IoC;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +36,7 @@ class IoCTest {
         ICommand resolve = IoC.<ICommand>resolve(dependencyName, args);
 
         Assertions.assertNotNull(resolve);
-        Assertions.assertTrue(resolve instanceof UpdateIocResolveDependencyStrategyCommand);
+        Assertions.assertInstanceOf(UpdateIocResolveDependencyStrategyCommand.class, resolve);
         resolve.execute();
     }
 }

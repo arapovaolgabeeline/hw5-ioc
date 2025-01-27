@@ -1,4 +1,4 @@
-package org.example;
+package org.example.ioc;
 
 import org.example.commands.UpdateIocResolveDependencyStrategyCommand;
 import org.example.interfaces.IoCStrategyUpdater;
