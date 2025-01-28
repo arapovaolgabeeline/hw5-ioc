@@ -3,6 +3,7 @@ package org.example.commands;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.example.interfaces.Dependency;
 import org.example.interfaces.IoCStrategyUpdater;
 import org.example.interfaces.ScopeItem;
 import org.example.interfaces.StrategyHolder;
@@ -12,7 +13,7 @@ public class InitCommand implements ICommand {
     public static ConcurrentMap<String, ScopeItem> rootScope = new ConcurrentHashMap<String, ScopeItem>();
     static boolean initialized = false;
 
-    public ThreadLocal<Object> currentScope = new ThreadLocal<>();
+    public static ThreadLocal<Object> currentScope = new ThreadLocal<>();
 
     @Override
     public void execute() {
@@ -21,6 +22,18 @@ public class InitCommand implements ICommand {
         }
 
         synchronized (rootScope) {
+            /**
+             * Work with scopes
+             */
+            rootScope.put("IoC.Scope.Current.Set", (Object[] args) -> new SetCurrentScopeCommand(args[0]));
+            rootScope.put("IoC.Scope.Current.Clear", (Object[] args) -> new ClearCurrentScopeCommand());
+            rootScope.put("IoC.Scope.Current", (Object[] args) -> Objects.isNull(currentScope.get()) ? rootScope : currentScope.get());
+
+            /**
+             * Resolvers and registers
+             */
+            rootScope.put("IoC.Register", (Object[] args) -> new RegisterDependencyCommand((String) args[0],
+                    (Dependency) args[1]));
 
             Object[] args = new Object[5];
             args[0] = new IoCStrategyUpdater() { // принимает String dependency, Object[] args и возвращает T

@@ -9,7 +9,7 @@ public class IoC {
     public static StrategyHolder _strategy = new StrategyHolder() { // todo должен быть защищенным
         @Override
         public <T> T resolve(String dependency, Object[] args) {
-            if ("Update Ioc Resolve Dependency Strategy".equals(dependency)) {
+            if ("Update Ioc Resolve Dependency Strategy".equals(dependency)) { // тут мы меняем scope
                 return (T) new UpdateIocResolveDependencyStrategyCommand((IoCStrategyUpdater) args[0]);
             } else
             {
