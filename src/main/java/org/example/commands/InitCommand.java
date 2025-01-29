@@ -28,6 +28,21 @@ public class InitCommand implements ICommand {
             rootScope.put("IoC.Scope.Current.Set", (Object[] args) -> new SetCurrentScopeCommand(args[0]));
             rootScope.put("IoC.Scope.Current.Clear", (Object[] args) -> new ClearCurrentScopeCommand());
             rootScope.put("IoC.Scope.Current", (Object[] args) -> Objects.isNull(currentScope.get()) ? rootScope : currentScope.get());
+            rootScope.put("IoC.Scope.Parent", (Object[] args) -> {
+                throw new RuntimeException("The root scope has no a parent scope.");
+            });
+            rootScope.put("IoC.Scope.Create.Empty", (Object[] args) -> new ConcurrentHashMap<>());
+            rootScope.put("IoC.Scope.Create", (Object[] args) -> {
+                ConcurrentMap<String, ScopeItem> createdScope = IoC.resolve("IoC.Scope.Create.Empty", new Object[]{});
+                if (args.length != 0) {
+                    Object parentScope = args[0];
+                    createdScope.put("IoC.Scope.Parent", arguments -> parentScope);
+                } else {
+                    Object parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+                    createdScope.put("IoC.Scope.Parent", arguments -> parentScope);
+                }
+                return createdScope;
+            });
 
             /**
              * Resolvers and registers

@@ -19,8 +19,10 @@ public class DependencyResolver implements IDependencyResolver {
         while (true) {
             Dependency dependencyResolverStrategy = null;
             if (dependencies.containsKey(dependencyName)) {
+                // вызывает искомую зависимость с аргументами
                 return dependencies.get(dependencyName).resolve(args);
             } else {
+                // зависимости из родительского скоупа ищет
                 dependencies = (Map<String, ScopeItem>)dependencies.get("IoC.Scope.Parent").resolve(args);
             }
         }
