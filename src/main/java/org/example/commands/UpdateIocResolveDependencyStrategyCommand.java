@@ -3,6 +3,9 @@ package org.example.commands;
 import org.example.interfaces.IoCStrategyUpdater;
 import org.example.ioc.IoC;
 
+/**
+ * Команда обновляет зависимости
+ * */
 public class UpdateIocResolveDependencyStrategyCommand implements ICommand {
     private final IoCStrategyUpdater _updateIoCStrategy;
 

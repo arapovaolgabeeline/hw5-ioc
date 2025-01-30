@@ -2,28 +2,31 @@ package org.example.commands;
 
 import java.util.Map;
 import org.example.interfaces.Dependency;
-import org.example.interfaces.ScopeItem;
 import org.example.resolvers.IDependencyResolver;
 
+/**
+ * Хранит список зависимостей. Сами зависимости крадет из текущего скоупа. Если в нем нет нужной, идет в перент.
+ */
 public class DependencyResolver implements IDependencyResolver {
-    public final Map<String, ScopeItem> _dependencies;
+    public final Map<String, Dependency> _dependencies;
 
     public DependencyResolver(Object scope) {
-        _dependencies = (Map<String, ScopeItem>) scope;
+        _dependencies = (Map<String, Dependency>) scope;
     }
 
     @Override
     public Object resolve(String dependencyName, Object[] args) {
-        Map<String, ScopeItem> dependencies = _dependencies;
+        Map<String, Dependency> dependencies = _dependencies;
 
         while (true) {
             Dependency dependencyResolverStrategy = null;
             if (dependencies.containsKey(dependencyName)) {
+                dependencyResolverStrategy = dependencies.get(dependencyName);
                 // вызывает искомую зависимость с аргументами
-                return dependencies.get(dependencyName).resolve(args);
+                return dependencyResolverStrategy.resolve(args);
             } else {
                 // зависимости из родительского скоупа ищет
-                dependencies = (Map<String, ScopeItem>)dependencies.get("IoC.Scope.Parent").resolve(args);
+                dependencies = (Map<String, Dependency>) dependencies.get("IoC.Scope.Parent").resolve(args);
             }
         }
     }

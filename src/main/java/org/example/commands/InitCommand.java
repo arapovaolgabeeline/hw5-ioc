@@ -5,12 +5,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.example.interfaces.Dependency;
 import org.example.interfaces.IoCStrategyUpdater;
-import org.example.interfaces.ScopeItem;
 import org.example.interfaces.StrategyHolder;
 import org.example.ioc.IoC;
 
 public class InitCommand implements ICommand {
-    public static ConcurrentMap<String, ScopeItem> rootScope = new ConcurrentHashMap<String, ScopeItem>();
+    public static ConcurrentMap<String, Dependency> rootScope = new ConcurrentHashMap<String, Dependency>();
     static boolean initialized = false;
 
     public static ThreadLocal<Object> currentScope = new ThreadLocal<>();
@@ -33,9 +32,9 @@ public class InitCommand implements ICommand {
             });
             rootScope.put("IoC.Scope.Create.Empty", (Object[] args) -> new ConcurrentHashMap<>());
             rootScope.put("IoC.Scope.Create", (Object[] args) -> {
-                ConcurrentMap<String, ScopeItem> createdScope = IoC.resolve("IoC.Scope.Create.Empty", new Object[]{});
+                ConcurrentMap<String, Dependency> createdScope = IoC.resolve("IoC.Scope.Create.Empty", new Object[]{});
                 if (args.length != 0) {
-                    Object parentScope = args[0];
+                    Object parentScope = args[0]; // первым аргументом ждем ParentScope
                     createdScope.put("IoC.Scope.Parent", arguments -> parentScope);
                 } else {
                     Object parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
@@ -59,13 +58,17 @@ public class InitCommand implements ICommand {
                         public <T> T resolve(String dependency, Object[] args) {
                             Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
                             DependencyResolver dependencyResolver = new DependencyResolver(scope);
-                            return (T) dependencyResolver.resolve(dependency, args);
+                            return (T) dependencyResolver.resolve(dependency, args); // тут вернется команда в итоге
                         }
                     };
                 }
             };
 
-            IoC.<ICommand>resolve("Update Ioc Resolve Dependency Strategy", args).execute();
+            // первая и единственная команда IoC: определяем место для хранения зависимостей, в итоге
+            // "Update Ioc Resolve Dependency Strategy" подменяет себя на настоящие стратегии
+            IoC.<ICommand>resolve("Update Ioc Resolve Dependency Strategy", args).execute(); // эта хуйня будет
+            // дергаться постоянно, через нее все команды и будут вызываться
+            // или нет....
 
             initialized = true;
         }
