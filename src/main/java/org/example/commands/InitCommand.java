@@ -49,13 +49,13 @@ public class InitCommand implements ICommand {
             rootScope.put("IoC.Register", (Object[] args) -> new RegisterDependencyCommand((String) args[0],
                     (Dependency) args[1]));
 
-            Object[] args = new Object[5];
+            Object[] args = new Object[1];
             args[0] = new IoCStrategyUpdater() { // принимает String dependency, Object[] args и возвращает T
                 @Override
-                public StrategyHolder update(StrategyHolder oldStrategy) {
+                public StrategyHolder update(StrategyHolder oldStrategy) { // а нахуя этот аргумент нужен?
                     return new StrategyHolder() {
                         @Override
-                        public <T> T resolve(String dependency, Object[] args) {
+                        public <T> T resolve(String dependency, Object[] args) { // это стратегия которая подменит собой _strategy в IoC
                             Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
                             DependencyResolver dependencyResolver = new DependencyResolver(scope);
                             return (T) dependencyResolver.resolve(dependency, args); // тут вернется команда в итоге
