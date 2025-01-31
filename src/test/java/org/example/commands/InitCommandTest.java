@@ -62,4 +62,9 @@ class InitCommandTest {
     void shouldCreateNewStrategy() {
         // we are here
     }
+
+    @Test
+    void shouldUseDifferentScopesForDifferentThreads() {
+        // we are here
+    }
 }
