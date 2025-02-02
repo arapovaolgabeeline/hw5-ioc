@@ -8,21 +8,18 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 
 class InitCommandTest {
 
     @Test
     void shouldInitCommands() {
-        InitCommand initCommand = new InitCommand();
-        initCommand.execute();
-        assertTrue(InitCommand.initialized);
+        doInitialization();
     }
 
     @Test
     void shouldReturnCurrentScope() {
-        InitCommand initCommand = new InitCommand();
-        initCommand.execute();
-        assertTrue(InitCommand.initialized);
+        doInitialization();
 
         ConcurrentMap<String, Dependency> resolve = IoC.resolve("IoC.Scope.Current", new Object[]{});
         assertNotNull(resolve);
@@ -38,9 +35,7 @@ class InitCommandTest {
 
     @Test
     void shouldChangeScopeToNewOne() {
-        InitCommand initCommand = new InitCommand();
-        initCommand.execute();
-        assertTrue(InitCommand.initialized);
+        doInitialization();
         ConcurrentMap<String, Dependency> parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
 
         ConcurrentMap<String, Dependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
@@ -58,10 +53,33 @@ class InitCommandTest {
         assertNotEquals(childScope, parentScope);
     }
 
-    @Test
-    void shouldCreateNewStrategy() {
-        // we are here
+    private static void doInitialization() {
+        InitCommand initCommand = new InitCommand();
+        initCommand.execute();
+        assertTrue(InitCommand.initialized);
     }
+
+    @Test
+    void shouldRegisterNewStrategy() throws Exception {
+        String newDependencyWasInvokedLog = "newDependency was invoked";
+        IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new Dependency() {
+            @Override
+            public Object resolve(Object[] args) {
+                return new ICommand() {
+                    @Override
+                    public void execute() {
+                        System.out.println(newDependencyWasInvokedLog);
+                    }
+                };
+            }
+        }});
+
+        ICommand newDependency = IoC.resolve("IoC.newDependency", new Object[]{});
+        String commandLog = tapSystemOut(newDependency::execute);
+
+        assertEquals(newDependencyWasInvokedLog, commandLog);
+    }
+
 
     @Test
     void shouldUseDifferentScopesForDifferentThreads() {
