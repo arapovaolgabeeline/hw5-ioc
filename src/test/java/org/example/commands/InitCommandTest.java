@@ -1,14 +1,15 @@
 package org.example.commands;
 
 import java.util.concurrent.ConcurrentMap;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.example.interfaces.Dependency;
 import org.example.ioc.IoC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 
 class InitCommandTest {
 
@@ -61,23 +62,26 @@ class InitCommandTest {
 
     @Test
     void shouldRegisterNewStrategy() throws Exception {
-        String newDependencyWasInvokedLog = "newDependency was invoked";
-        IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new Dependency() {
+        doInitialization();
+        MutableBoolean isNewDependencyInvoked = new MutableBoolean();
+        Object registerDependencyCommand = IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new Dependency() {
             @Override
             public Object resolve(Object[] args) {
                 return new ICommand() {
                     @Override
                     public void execute() {
-                        System.out.println(newDependencyWasInvokedLog);
+                        ((MutableBoolean) isNewDependencyInvoked).setValue(Boolean.TRUE);
                     }
                 };
             }
         }});
+        ((ICommand) registerDependencyCommand).execute();
 
-        ICommand newDependency = IoC.resolve("IoC.newDependency", new Object[]{});
-        String commandLog = tapSystemOut(newDependency::execute);
+        ICommand newDependency = IoC.resolve("IoC.newDependency", new Object[]{isNewDependencyInvoked});
 
-        assertEquals(newDependencyWasInvokedLog, commandLog);
+        assertFalse(isNewDependencyInvoked.getValue());
+        newDependency.execute();
+        assertTrue(isNewDependencyInvoked.getValue());
     }
 
 
