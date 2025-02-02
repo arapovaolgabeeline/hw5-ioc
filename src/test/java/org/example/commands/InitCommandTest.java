@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class InitCommandTest {
@@ -24,7 +25,7 @@ class InitCommandTest {
 
         ConcurrentMap<String, Dependency> resolve = IoC.resolve("IoC.Scope.Current", new Object[]{});
         assertNotNull(resolve);
-        assertEquals(7, resolve.size());
+        assertEquals(8, resolve.size());
         assertTrue(resolve.containsKey("IoC.Scope.Create"));
         assertTrue(resolve.containsKey("IoC.Scope.Current"));
         assertTrue(resolve.containsKey("IoC.Scope.Current.Clear"));
