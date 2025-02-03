@@ -10,16 +10,20 @@ public class IoC {
      * В итоге переменная подменяется на стратегию для определения скоупов, стратегии разрешения зависимостей и самих
      * зависимостей. Это универсально, поскольку стратегия может переопределить себя
      * */
-    public static StrategyHolder _strategy = new StrategyHolder() { // todo должен быть защищенным
-        @Override
-        public <T> T resolve(String dependency, Object[] args) {
-            if ("Update Ioc Resolve Dependency Strategy".equals(dependency)) {
-                return (T) new UpdateIocResolveDependencyStrategyCommand((IoCStrategyUpdater) args[0]);
-            } else {
-                throw new IllegalArgumentException("Dependency " + dependency + " was not found.");
+    public static StrategyHolder _strategy = defaultStrategy();
+
+    public static StrategyHolder defaultStrategy() {
+        return new StrategyHolder() { // todo должен быть защищенным
+            @Override
+            public <T> T resolve(String dependency, Object[] args) {
+                if ("Update Ioc Resolve Dependency Strategy".equals(dependency)) {
+                    return (T) new UpdateIocResolveDependencyStrategyCommand((IoCStrategyUpdater) args[0]);
+                } else {
+                    throw new IllegalArgumentException("Dependency " + dependency + " was not found.");
+                }
             }
-        }
-    };
+        };
+    }
 
     // 2. IoC предоставляет ровно один метод для всех операций. 1 балл
     // тут получается каждый раз мы будем переопределять способ определения зависимостей, скоуп искать и проч?

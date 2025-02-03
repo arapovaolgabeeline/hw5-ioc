@@ -63,6 +63,63 @@ class InitCommandTest {
         assertNotEquals(childScope, parentScope);
     }
 
+    @Test
+    void shouldCreateScopeWithDesiredParentScope() {
+        ConcurrentMap<String, Dependency> desiredParentScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
+
+        // создаст скоуп
+        ConcurrentMap<String, Dependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{desiredParentScope});
+        // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
+        assertNotNull(createdScope);
+        ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
+        setScopeCommand.execute();
+
+        ConcurrentMap<String, Dependency> parentScope = IoC.resolve("IoC.Scope.Parent", new Object[]{createdScope});
+
+        assertEquals(desiredParentScope, parentScope);
+    }
+
+    @Test
+    void shouldNotClearRootScope() {
+        ConcurrentMap<String, Dependency> currentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        assertEquals(8, currentScope.size());
+
+        ICommand clearScopeCommand = IoC.resolve("IoC.Scope.Current.Clear", new Object[]{currentScope});
+        clearScopeCommand.execute();
+        ConcurrentMap<String, Dependency> updatedCurrentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+
+        assertFalse(updatedCurrentScope.isEmpty());
+    }
+
+    @Test
+    void shouldSwitchFromLocalScopeToRootScopeWhenScopeWasClear() {
+        ConcurrentMap<String, Dependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
+        // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
+        assertNotNull(createdScope);
+
+        ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
+        setScopeCommand.execute();
+        ConcurrentMap<String, Dependency> currentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        assertEquals(1, currentScope.size());
+        Object registerDependencyCommand = IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new Dependency() {
+            @Override
+            public Object resolve(Object[] args) {
+                return new ICommand() {
+                    @Override
+                    public void execute() {
+
+                    }
+                };
+            }
+        }});
+        ((ICommand) registerDependencyCommand).execute();
+        assertEquals(2, currentScope.size());
+
+        ICommand clearScopeCommand = IoC.resolve("IoC.Scope.Current.Clear", new Object[]{currentScope});
+        clearScopeCommand.execute();
+        assertThrows(RuntimeException.class, () -> IoC.resolve("IoC.Scope.Parent", new Object[]{}));
+    }
+
     private static void doInitialization() {
         InitCommand initCommand = new InitCommand();
         initCommand.execute();
