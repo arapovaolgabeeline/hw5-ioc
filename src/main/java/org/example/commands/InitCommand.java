@@ -10,7 +10,7 @@ import org.example.ioc.IoC;
 
 public class InitCommand implements ICommand {
     public static ConcurrentMap<String, Dependency> rootScope = new ConcurrentHashMap<String, Dependency>();
-    static boolean initialized = false;
+    public static boolean initialized = false;
 
     public static ThreadLocal<Object> currentScope = new ThreadLocal<>();
 
