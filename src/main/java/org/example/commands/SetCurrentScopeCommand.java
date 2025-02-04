@@ -1,14 +1,14 @@
 package org.example.commands;
 
 public class SetCurrentScopeCommand implements ICommand {
-    Object _scope;
+    private final Object scope;
 
-    public SetCurrentScopeCommand(Object _scope) {
-        this._scope = _scope;
+    public SetCurrentScopeCommand(Object scope) {
+        this.scope = scope;
     }
 
     @Override
     public void execute() {
-        InitCommand.currentScope.set(_scope);
+        InitCommand.currentScope.set(scope);
     }
 }

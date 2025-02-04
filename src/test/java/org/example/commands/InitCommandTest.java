@@ -13,16 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class InitCommandTest {
-
-    @BeforeAll
-    public static void beforeAll() {
-        InitCommand.initialized = false;
-    }
 
     @BeforeEach
     void init() {
@@ -123,11 +117,10 @@ class InitCommandTest {
     private static void doInitialization() {
         InitCommand initCommand = new InitCommand();
         initCommand.execute();
-        assertTrue(InitCommand.initialized);
     }
 
     @Test
-    void shouldRegisterNewStrategy() throws Exception {
+    void shouldRegisterNewStrategy() {
         MutableBoolean isNewDependencyInvoked = new MutableBoolean();
         Object registerDependencyCommand = IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new Dependency() {
             @Override

@@ -17,7 +17,6 @@ class IoCTest {
 
     @BeforeEach
     public void beforeEach() {
-        InitCommand.initialized = false;
         IoC._strategy = IoC.defaultStrategy();
     }
 

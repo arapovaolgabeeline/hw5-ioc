@@ -9,10 +9,9 @@ import org.example.interfaces.StrategyHolder;
 import org.example.ioc.IoC;
 
 public class InitCommand implements ICommand {
-    public static ConcurrentMap<String, Dependency> rootScope = new ConcurrentHashMap<String, Dependency>();
-    public static boolean initialized = false;
-
-    public static ThreadLocal<Object> currentScope = new ThreadLocal<>();
+    private static final ConcurrentMap<String, Dependency> rootScope = new ConcurrentHashMap<>();
+    private static boolean initialized = false;
+    protected static final ThreadLocal<Object> currentScope = new ThreadLocal<>();
 
     @Override
     public void execute() {
@@ -34,7 +33,7 @@ public class InitCommand implements ICommand {
             rootScope.put("IoC.Scope.Create", (Object[] args) -> {
                 ConcurrentMap<String, Dependency> createdScope = IoC.resolve("IoC.Scope.Create.Empty", new Object[]{});
                 if (args.length != 0) {
-                    Object parentScope = args[0]; // первым аргументом ждем ParentScope
+                    Object parentScope = args[0];
                     createdScope.put("IoC.Scope.Parent", arguments -> parentScope);
                 } else {
                     Object parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
@@ -42,33 +41,20 @@ public class InitCommand implements ICommand {
                 }
                 return createdScope;
             });
-
-            /**
-             * Resolvers and registers
-             */
             rootScope.put("IoC.Register", (Object[] args) -> new RegisterDependencyCommand((String) args[0],
                     (Dependency) args[1]));
 
             Object[] args = new Object[1];
-            args[0] = new IoCStrategyUpdater() { // принимает String dependency, Object[] args и возвращает T
+            args[0] = (IoCStrategyUpdater) oldStrategy -> new StrategyHolder() {
                 @Override
-                public StrategyHolder update(StrategyHolder oldStrategy) { // а нахуя этот аргумент нужен?
-                    return new StrategyHolder() {
-                        @Override
-                        public <T> T resolve(String dependency, Object[] args) { // это стратегия которая подменит собой _strategy в IoC
-                            Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
-                            DependencyResolver dependencyResolver = new DependencyResolver(scope);
-                            return (T) dependencyResolver.resolve(dependency, args); // тут вернется команда в итоге
-                        }
-                    };
+                public <T> T resolve(String dependency, Object[] args1) {
+                    Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
+                    DependencyResolver dependencyResolver = new DependencyResolver(scope);
+                    return (T) dependencyResolver.resolve(dependency, args1);
                 }
             };
 
-            // первая и единственная команда IoC: определяем место для хранения зависимостей, в итоге
-            // "Update Ioc Resolve Dependency Strategy" подменяет себя на настоящие стратегии
-            IoC.<ICommand>resolve("Update Ioc Resolve Dependency Strategy", args).execute(); // эта хуйня будет
-            // дергаться постоянно, через нее все команды и будут вызываться
-            // или нет....
+            IoC.<ICommand>resolve("Update Ioc Resolve Dependency Strategy", args).execute();
 
             initialized = true;
         }
