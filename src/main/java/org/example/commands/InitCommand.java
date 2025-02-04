@@ -3,13 +3,16 @@ package org.example.commands;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.example.interfaces.Dependency;
+import org.example.interfaces.DependencyResolverStrategy;
 import org.example.interfaces.IoCStrategyUpdater;
 import org.example.interfaces.StrategyHolder;
 import org.example.ioc.IoC;
 
 public class InitCommand implements ICommand {
-    private static final ConcurrentMap<String, Dependency> rootScope = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, DependencyResolverStrategy> rootScope = new ConcurrentHashMap<>();
+    private static final String PARENT_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Parent";
+    public static final String CREATE_EMPTY_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Create.Empty";
+    public static final String CURRENT_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Current";
     private static boolean initialized = false;
     protected static final ThreadLocal<Object> currentScope = new ThreadLocal<>();
 
@@ -25,24 +28,25 @@ public class InitCommand implements ICommand {
              */
             rootScope.put("IoC.Scope.Current.Set", (Object[] args) -> new SetCurrentScopeCommand(args[0]));
             rootScope.put("IoC.Scope.Current.Clear", (Object[] args) -> new ClearCurrentScopeCommand());
-            rootScope.put("IoC.Scope.Current", (Object[] args) -> Objects.isNull(currentScope.get()) ? rootScope : currentScope.get());
-            rootScope.put("IoC.Scope.Parent", (Object[] args) -> {
+            rootScope.put(CURRENT_SCOPE_DEPENDENCY_NAME, (Object[] args) -> Objects.isNull(currentScope.get()) ? rootScope : currentScope.get());
+            rootScope.put(PARENT_SCOPE_DEPENDENCY_NAME, (Object[] args) -> {
                 throw new RuntimeException("The root scope has no a parent scope.");
             });
-            rootScope.put("IoC.Scope.Create.Empty", (Object[] args) -> new ConcurrentHashMap<>());
+            rootScope.put(CREATE_EMPTY_SCOPE_DEPENDENCY_NAME, (Object[] args) -> new ConcurrentHashMap<>());
             rootScope.put("IoC.Scope.Create", (Object[] args) -> {
-                ConcurrentMap<String, Dependency> createdScope = IoC.resolve("IoC.Scope.Create.Empty", new Object[]{});
+                ConcurrentMap<String, DependencyResolverStrategy> createdScope = IoC.resolve(CREATE_EMPTY_SCOPE_DEPENDENCY_NAME,
+                        new Object[]{});
                 if (args.length != 0) {
                     Object parentScope = args[0];
-                    createdScope.put("IoC.Scope.Parent", arguments -> parentScope);
+                    createdScope.put(PARENT_SCOPE_DEPENDENCY_NAME, arguments -> parentScope);
                 } else {
-                    Object parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
-                    createdScope.put("IoC.Scope.Parent", arguments -> parentScope);
+                    Object parentScope = IoC.resolve(CURRENT_SCOPE_DEPENDENCY_NAME, new Object[]{});
+                    createdScope.put(PARENT_SCOPE_DEPENDENCY_NAME, arguments -> parentScope);
                 }
                 return createdScope;
             });
             rootScope.put("IoC.Register", (Object[] args) -> new RegisterDependencyCommand((String) args[0],
-                    (Dependency) args[1]));
+                    (DependencyResolverStrategy) args[1]));
 
             Object[] args = new Object[1];
             args[0] = (IoCStrategyUpdater) oldStrategy -> new StrategyHolder() {
