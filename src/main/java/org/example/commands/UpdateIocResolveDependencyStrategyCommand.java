@@ -15,7 +15,7 @@ public class UpdateIocResolveDependencyStrategyCommand implements ICommand {
 
     @Override
     public void execute() {
-        IoC._strategy = _updateIoCStrategy.update(IoC._strategy);
+        IoC.strategy = _updateIoCStrategy.update(IoC.strategy);
         System.out.println("Ioc strategy updated");
     }
 

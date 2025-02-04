@@ -2,18 +2,14 @@ package org.example.ioc;
 
 import org.example.commands.UpdateIocResolveDependencyStrategyCommand;
 import org.example.interfaces.IoCStrategyUpdater;
-import org.example.interfaces.StrategyHolder;
+import org.example.interfaces.CommonDependencyResolverStrategy;
 
 // 1. Интерфейс IoC устойчив к изменению требований.
 public class IoC {
-    /**
-     * В итоге переменная подменяется на стратегию для определения скоупов, стратегии разрешения зависимостей и самих
-     * зависимостей. Это универсально, поскольку стратегия может переопределить себя
-     * */
-    public static StrategyHolder _strategy = defaultStrategy();
+    public static CommonDependencyResolverStrategy strategy = clearContext();
 
-    public static StrategyHolder defaultStrategy() {
-        return new StrategyHolder() { // todo должен быть защищенным
+    public static CommonDependencyResolverStrategy clearContext() {
+        return new CommonDependencyResolverStrategy() {
             @Override
             public <T> T resolve(String dependency, Object[] args) {
                 if ("Update Ioc Resolve Dependency Strategy".equals(dependency)) {
@@ -28,7 +24,7 @@ public class IoC {
     // 2. IoC предоставляет ровно один метод для всех операций. 1 балл
     // тут получается каждый раз мы будем переопределять способ определения зависимостей, скоуп искать и проч?
     public static <T> T resolve(String dependency, Object[] args) {
-        return (T) _strategy.resolve(dependency, args);
+        return (T) strategy.resolve(dependency, args);
     }
 
 }

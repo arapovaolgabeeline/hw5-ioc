@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.example.interfaces.DependencyResolverStrategy;
 import org.example.interfaces.IoCStrategyUpdater;
-import org.example.interfaces.StrategyHolder;
+import org.example.interfaces.CommonDependencyResolverStrategy;
 import org.example.ioc.IoC;
 
 public class InitCommand implements ICommand {
@@ -49,11 +49,11 @@ public class InitCommand implements ICommand {
                     (DependencyResolverStrategy) args[1]));
 
             Object[] args = new Object[1];
-            args[0] = (IoCStrategyUpdater) oldStrategy -> new StrategyHolder() {
+            args[0] = (IoCStrategyUpdater) oldStrategy -> new CommonDependencyResolverStrategy() {
                 @Override
                 public <T> T resolve(String dependency, Object[] args1) {
                     Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
-                    DependencyResolver dependencyResolver = new DependencyResolver(scope);
+                    org.example.commands.DependencyResolver dependencyResolver = new org.example.commands.DependencyResolver(scope);
                     return (T) dependencyResolver.resolve(dependency, args1);
                 }
             };
