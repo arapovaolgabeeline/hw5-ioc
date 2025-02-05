@@ -1,10 +1,11 @@
 package org.example;
 
 import org.example.commands.ICommand;
-import org.example.commands.UpdateIocResolveDependencyStrategyCommand;
+import org.example.ioc.UpdateIocResolveDependencyStrategyCommand;
 import org.example.interfaces.IoCStrategyUpdater;
 import org.example.interfaces.CommonDependencyResolverStrategy;
 import org.example.ioc.IoC;
+import org.example.ioc.IocContextCleaner;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,7 @@ class IoCTest {
 
     @BeforeEach
     public void beforeEach() {
-        IoC.strategy = IoC.clearContext();
+        IocContextCleaner.clearContext();
     }
 
     @Test
@@ -22,20 +23,10 @@ class IoCTest {
         String dependencyName = "Update Ioc Resolve Dependency Strategy";
 
         Object[] args = new Object[1];
-        args[0] = new IoCStrategyUpdater() {
+        args[0] = (IoCStrategyUpdater) newDependency -> new CommonDependencyResolverStrategy() {
             @Override
-            public CommonDependencyResolverStrategy update(CommonDependencyResolverStrategy newDependency) {
-                return new CommonDependencyResolverStrategy() {
-                    @Override
-                    public <T> T resolve(String dependency, Object[] args) {
-                        return (T) new UpdateIocResolveDependencyStrategyCommand(new IoCStrategyUpdater() {
-                            @Override
-                            public CommonDependencyResolverStrategy update(CommonDependencyResolverStrategy newDependency) {
-                                return null;
-                            }
-                        });
-                    }
-                };
+            public <T> T resolve(String dependency, Object[] args1) {
+                return (T) new UpdateIocResolveDependencyStrategyCommand(newDependency1 -> null);
             }
         };
 
@@ -57,12 +48,7 @@ class IoCTest {
                 return new CommonDependencyResolverStrategy() {
                     @Override
                     public <T> T resolve(String dependency, Object[] args) {
-                        return (T) new UpdateIocResolveDependencyStrategyCommand(new IoCStrategyUpdater() {
-                            @Override
-                            public CommonDependencyResolverStrategy update(CommonDependencyResolverStrategy newDependency) {
-                                return null;
-                            }
-                        });
+                        return (T) new UpdateIocResolveDependencyStrategyCommand(newDependency1 -> null);
                     }
                 };
             }

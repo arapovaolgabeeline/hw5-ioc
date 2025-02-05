@@ -1,7 +1,7 @@
-package org.example.commands;
+package org.example.ioc;
 
+import org.example.commands.ICommand;
 import org.example.interfaces.IoCStrategyUpdater;
-import org.example.ioc.IoC;
 
 /**
  * Команда обновляет зависимости
@@ -16,7 +16,6 @@ public class UpdateIocResolveDependencyStrategyCommand implements ICommand {
     @Override
     public void execute() {
         IoC.strategy = _updateIoCStrategy.update(IoC.strategy);
-        System.out.println("Ioc strategy updated");
     }
 
 }

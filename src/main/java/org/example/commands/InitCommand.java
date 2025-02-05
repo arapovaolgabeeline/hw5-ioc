@@ -53,7 +53,7 @@ public class InitCommand implements ICommand {
                 @Override
                 public <T> T resolve(String dependency, Object[] args1) {
                     Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
-                    org.example.commands.DependencyResolver dependencyResolver = new org.example.commands.DependencyResolver(scope);
+                    DependencyResolver dependencyResolver = new DependencyResolver(scope);
                     return (T) dependencyResolver.resolve(dependency, args1);
                 }
             };
