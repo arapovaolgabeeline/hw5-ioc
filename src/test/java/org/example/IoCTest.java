@@ -1,9 +1,9 @@
 package org.example;
 
 import org.example.commands.ICommand;
-import org.example.ioc.UpdateIocResolveDependencyStrategyCommand;
-import org.example.interfaces.IoCStrategyUpdater;
-import org.example.interfaces.CommonDependencyResolverStrategy;
+import org.example.ioc.IocResolveDependencyStrategySetterCommand;
+import org.example.interfaces.IDependencyResolverStrategyUpdater;
+import org.example.interfaces.IDependencyResolverStrategy;
 import org.example.ioc.IoC;
 import org.example.ioc.IocContextCleaner;
 import org.junit.jupiter.api.Assertions;
@@ -23,17 +23,17 @@ class IoCTest {
         String dependencyName = "Update Ioc Resolve Dependency Strategy";
 
         Object[] args = new Object[1];
-        args[0] = (IoCStrategyUpdater) newDependency -> new CommonDependencyResolverStrategy() {
+        args[0] = (IDependencyResolverStrategyUpdater) newDependency -> new IDependencyResolverStrategy() {
             @Override
             public <T> T resolve(String dependency, Object[] args1) {
-                return (T) new UpdateIocResolveDependencyStrategyCommand(newDependency1 -> null);
+                return (T) new IocResolveDependencyStrategySetterCommand(newDependency1 -> null);
             }
         };
 
         ICommand resolve = IoC.<ICommand>resolve(dependencyName, args);
 
         Assertions.assertNotNull(resolve);
-        Assertions.assertInstanceOf(UpdateIocResolveDependencyStrategyCommand.class, resolve);
+        Assertions.assertInstanceOf(IocResolveDependencyStrategySetterCommand.class, resolve);
         resolve.execute();
     }
 
@@ -42,13 +42,13 @@ class IoCTest {
         String dependencyName = "Unknown Strategy";
 
         Object[] args = new Object[1];
-        args[0] = new IoCStrategyUpdater() {
+        args[0] = new IDependencyResolverStrategyUpdater() {
             @Override
-            public CommonDependencyResolverStrategy update(CommonDependencyResolverStrategy newDependency) {
-                return new CommonDependencyResolverStrategy() {
+            public IDependencyResolverStrategy update(IDependencyResolverStrategy newIDependencyResolverStrategy) {
+                return new IDependencyResolverStrategy() {
                     @Override
                     public <T> T resolve(String dependency, Object[] args) {
-                        return (T) new UpdateIocResolveDependencyStrategyCommand(newDependency1 -> null);
+                        return (T) new IocResolveDependencyStrategySetterCommand(newDependency1 -> null);
                     }
                 };
             }

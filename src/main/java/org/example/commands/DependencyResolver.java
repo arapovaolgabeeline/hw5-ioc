@@ -1,32 +1,30 @@
 package org.example.commands;
 
 import java.util.Map;
-import org.example.interfaces.DependencyResolverStrategy;
+import org.example.interfaces.IDependency;
 import org.example.resolvers.IDependencyResolver;
 
 /**
  * Хранит список зависимостей. Сами зависимости крадет из текущего скоупа. Если в нем нет нужной, идет в перент.
  */
 public class DependencyResolver implements IDependencyResolver {
-    private final Map<String, DependencyResolverStrategy> dependencies;
+    private final Map<String, IDependency> dependencies;
 
     public DependencyResolver(Object scope) {
-        dependencies = (Map<String, DependencyResolverStrategy>) scope;
+        dependencies = (Map<String, IDependency>) scope;
     }
 
     @Override
     public Object resolve(String dependencyName, Object[] args) {
-        Map<String, DependencyResolverStrategy> dependencies = this.dependencies;
+        Map<String, IDependency> dependencies = this.dependencies;
 
         while (true) {
-            DependencyResolverStrategy dependencyResolverStrategy = null;
+            IDependency IDependency;
             if (dependencies.containsKey(dependencyName)) {
-                dependencyResolverStrategy = dependencies.get(dependencyName);
-                // вызывает искомую зависимость с аргументами
-                return dependencyResolverStrategy.resolve(args);
+                IDependency = dependencies.get(dependencyName);
+                return IDependency.invoke(args);
             } else {
-                // зависимости из родительского скоупа ищет
-                dependencies = (Map<String, DependencyResolverStrategy>) dependencies.get("IoC.Scope.Parent").resolve(args);
+                dependencies = (Map<String, IDependency>) dependencies.get("IoC.Scope.Parent").invoke(args);
             }
         }
     }

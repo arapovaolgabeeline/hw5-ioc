@@ -1,16 +1,16 @@
 package org.example.commands;
 
 import java.util.Map;
-import org.example.interfaces.DependencyResolverStrategy;
+import org.example.interfaces.IDependency;
 import org.example.ioc.IoC;
 
 public class RegisterDependencyCommand implements ICommand {
     private final String dependencyName;
-    private final DependencyResolverStrategy dependencyResolverStrategy;
+    private final IDependency IDependency;
 
-    public RegisterDependencyCommand(String dependencyName, DependencyResolverStrategy strategy) {
+    public RegisterDependencyCommand(String dependencyName, IDependency strategy) {
         this.dependencyName = dependencyName;
-        this.dependencyResolverStrategy = strategy;
+        this.IDependency = strategy;
     }
 
     /**
@@ -18,7 +18,7 @@ public class RegisterDependencyCommand implements ICommand {
      */
     @Override
     public void execute() {
-        Map<String, DependencyResolverStrategy> currentScope = IoC.<Map<String, DependencyResolverStrategy>>resolve("IoC.Scope.Current", new Object[]{});
-        currentScope.put(dependencyName, dependencyResolverStrategy);
+        Map<String, IDependency> currentScope = IoC.<Map<String, IDependency>>resolve("IoC.Scope.Current", new Object[]{});
+        currentScope.put(dependencyName, IDependency);
     }
 }

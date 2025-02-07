@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.example.interfaces.DependencyResolverStrategy;
+import org.example.interfaces.IDependency;
 import org.example.ioc.IoC;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +25,7 @@ class InitCommandTest {
 
     @Test
     void shouldReturnCurrentScope() {
-        ConcurrentMap<String, DependencyResolverStrategy> resolve = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        ConcurrentMap<String, IDependency> resolve = IoC.resolve("IoC.Scope.Current", new Object[]{});
         assertNotNull(resolve);
         assertEquals(8, resolve.size());
         assertTrue(resolve.containsKey("IoC.Scope.Create"));
@@ -39,17 +39,17 @@ class InitCommandTest {
 
     @Test
     void shouldChangeScopeToNewOne() {
-        ConcurrentMap<String, DependencyResolverStrategy> parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        ConcurrentMap<String, IDependency> parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
 
         // создаст скоуп
-        ConcurrentMap<String, DependencyResolverStrategy> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
+        ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
         // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
 
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
         setScopeCommand.execute();
 
-        ConcurrentMap<String, DependencyResolverStrategy> childScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        ConcurrentMap<String, IDependency> childScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
 
         // надо взять любую зависимость из перента и поискать ее в текущем
         assertNotNull(parentScope);
@@ -59,45 +59,45 @@ class InitCommandTest {
 
     @Test
     void shouldCreateScopeWithDesiredParentScope() {
-        ConcurrentMap<String, DependencyResolverStrategy> desiredParentScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
+        ConcurrentMap<String, IDependency> desiredParentScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
 
         // создаст скоуп
-        ConcurrentMap<String, DependencyResolverStrategy> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{desiredParentScope});
+        ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{desiredParentScope});
         // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
         setScopeCommand.execute();
 
-        ConcurrentMap<String, DependencyResolverStrategy> parentScope = IoC.resolve("IoC.Scope.Parent", new Object[]{createdScope});
+        ConcurrentMap<String, IDependency> parentScope = IoC.resolve("IoC.Scope.Parent", new Object[]{createdScope});
 
         assertEquals(desiredParentScope, parentScope);
     }
 
     @Test
     void shouldNotClearRootScope() {
-        ConcurrentMap<String, DependencyResolverStrategy> currentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        ConcurrentMap<String, IDependency> currentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
         assertEquals(8, currentScope.size());
 
         ICommand clearScopeCommand = IoC.resolve("IoC.Scope.Current.Clear", new Object[]{currentScope});
         clearScopeCommand.execute();
-        ConcurrentMap<String, DependencyResolverStrategy> updatedCurrentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        ConcurrentMap<String, IDependency> updatedCurrentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
 
         assertFalse(updatedCurrentScope.isEmpty());
     }
 
     @Test
     void shouldSwitchFromLocalScopeToRootScopeWhenScopeWasClear() {
-        ConcurrentMap<String, DependencyResolverStrategy> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
+        ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
         // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
 
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
         setScopeCommand.execute();
-        ConcurrentMap<String, DependencyResolverStrategy> currentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
+        ConcurrentMap<String, IDependency> currentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
         assertEquals(1, currentScope.size());
-        Object registerDependencyCommand = IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new DependencyResolverStrategy() {
+        Object registerDependencyCommand = IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new IDependency() {
             @Override
-            public Object resolve(Object[] args) {
+            public Object invoke(Object[] args) {
                 return new ICommand() {
                     @Override
                     public void execute() {
@@ -122,9 +122,9 @@ class InitCommandTest {
     @Test
     void shouldRegisterNewStrategy() {
         MutableBoolean isNewDependencyInvoked = new MutableBoolean();
-        Object registerDependencyCommand = IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new DependencyResolverStrategy() {
+        Object registerDependencyCommand = IoC.resolve("IoC.Register", new Object[]{"IoC.newDependency", new IDependency() {
             @Override
-            public Object resolve(Object[] args) {
+            public Object invoke(Object[] args) {
                 return new ICommand() {
                     @Override
                     public void execute() {
@@ -170,7 +170,7 @@ class InitCommandTest {
 
     private static void createAndSetNewScope() {
         // создаст скоуп
-        ConcurrentMap<String, DependencyResolverStrategy> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
+        ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
         // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
 

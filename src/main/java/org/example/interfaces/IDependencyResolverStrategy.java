@@ -1,7 +1,7 @@
 package org.example.interfaces;
 
 @FunctionalInterface
-public interface CommonDependencyResolverStrategy {
+public interface IDependencyResolverStrategy {
 
     <T> T resolve(String dependency, Object[] args);
 

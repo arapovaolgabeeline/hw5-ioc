@@ -3,13 +3,13 @@ package org.example.commands;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.example.interfaces.DependencyResolverStrategy;
-import org.example.interfaces.IoCStrategyUpdater;
-import org.example.interfaces.CommonDependencyResolverStrategy;
+import org.example.interfaces.IDependency;
+import org.example.interfaces.IDependencyResolverStrategyUpdater;
+import org.example.interfaces.IDependencyResolverStrategy;
 import org.example.ioc.IoC;
 
 public class InitCommand implements ICommand {
-    private static final ConcurrentMap<String, DependencyResolverStrategy> rootScope = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, IDependency> rootScope = new ConcurrentHashMap<>();
     private static final String PARENT_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Parent";
     public static final String CREATE_EMPTY_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Create.Empty";
     public static final String CURRENT_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Current";
@@ -34,7 +34,7 @@ public class InitCommand implements ICommand {
             });
             rootScope.put(CREATE_EMPTY_SCOPE_DEPENDENCY_NAME, (Object[] args) -> new ConcurrentHashMap<>());
             rootScope.put("IoC.Scope.Create", (Object[] args) -> {
-                ConcurrentMap<String, DependencyResolverStrategy> createdScope = IoC.resolve(CREATE_EMPTY_SCOPE_DEPENDENCY_NAME,
+                ConcurrentMap<String, IDependency> createdScope = IoC.resolve(CREATE_EMPTY_SCOPE_DEPENDENCY_NAME,
                         new Object[]{});
                 if (args.length != 0) {
                     Object parentScope = args[0];
@@ -46,10 +46,10 @@ public class InitCommand implements ICommand {
                 return createdScope;
             });
             rootScope.put("IoC.Register", (Object[] args) -> new RegisterDependencyCommand((String) args[0],
-                    (DependencyResolverStrategy) args[1]));
+                    (IDependency) args[1]));
 
             Object[] args = new Object[1];
-            args[0] = (IoCStrategyUpdater) oldStrategy -> new CommonDependencyResolverStrategy() {
+            args[0] = (IDependencyResolverStrategyUpdater) oldStrategy -> new IDependencyResolverStrategy() {
                 @Override
                 public <T> T resolve(String dependency, Object[] args1) {
                     Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
