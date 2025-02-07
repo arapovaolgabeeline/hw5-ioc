@@ -63,7 +63,6 @@ class InitCommandTest {
     void shouldCreateScopeWithDesiredParentScope() {
         ConcurrentMap<String, IDependency> desiredParentScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
 
-        // создаст скоуп
         ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{desiredParentScope});
         assertNotNull(createdScope);
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
