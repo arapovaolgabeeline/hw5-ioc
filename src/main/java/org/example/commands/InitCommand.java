@@ -50,10 +50,10 @@ public class InitCommand implements ICommand {
             Object[] args = new Object[1];
             args[0] = (IDependencyResolverStrategyUpdater) oldStrategy -> new IDependencyResolverStrategy() {
                 @Override
-                public <T> T resolve(String dependency, Object[] args1) {
+                public <T> T resolve(String dependency, Object[] args) {
                     Object scope = Objects.nonNull(currentScope.get()) ? currentScope.get() : rootScope;
                     DependencyResolver dependencyResolver = new DependencyResolver(scope);
-                    return (T) dependencyResolver.resolve(dependency, args1);
+                    return (T) dependencyResolver.resolve(dependency, args);
                 }
             };
 
