@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.example.interfaces.ICommand;
 import org.example.interfaces.IDependency;
 import org.example.ioc.IoC;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

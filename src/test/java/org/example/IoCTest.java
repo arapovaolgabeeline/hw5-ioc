@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.commands.ICommand;
+import org.example.interfaces.ICommand;
 import org.example.ioc.IocResolveDependencyStrategySetterCommand;
 import org.example.interfaces.IDependencyResolverStrategyUpdater;
 import org.example.interfaces.IDependencyResolverStrategy;
@@ -15,7 +15,7 @@ class IoCTest {
 
     @BeforeEach
     public void beforeEach() {
-        IocContextCleaner.clearContext();
+        IocContextCleaner.clean();
     }
 
     @Test

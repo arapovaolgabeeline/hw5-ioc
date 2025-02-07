@@ -1,6 +1,6 @@
 package org.example.ioc;
 
-import org.example.commands.ICommand;
+import org.example.interfaces.ICommand;
 import org.example.interfaces.IDependencyResolverStrategyUpdater;
 
 public class IocResolveDependencyStrategySetterCommand implements ICommand {

@@ -5,7 +5,7 @@ import org.example.interfaces.IDependencyResolverStrategyUpdater;
 
 public class IocContextCleaner extends IoC {
 
-    public static void clearContext() {
+    public static void clean() {
         strategy = new IDependencyResolverStrategy() {
             @Override
             public <T> T resolve(String dependency, Object[] args) {

@@ -1,4 +1,4 @@
-package org.example.commands;
+package org.example.interfaces;
 
 public interface ICommand {
 

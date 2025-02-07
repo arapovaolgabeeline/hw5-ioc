@@ -1,8 +1,7 @@
-package org.example.commands;
+package org.example.resolvers;
 
 import java.util.Map;
 import org.example.interfaces.IDependency;
-import org.example.resolvers.IDependencyResolver;
 
 /**
  * Хранит список зависимостей. Сами зависимости крадет из текущего скоупа. Если в нем нет нужной, идет в перент.
