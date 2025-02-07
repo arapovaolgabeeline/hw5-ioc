@@ -15,7 +15,7 @@ public class InitCommand implements ICommand {
     private static final String PARENT_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Parent";
     private static final String CREATE_EMPTY_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Create.Empty";
     private static final String CURRENT_SCOPE_DEPENDENCY_NAME = "IoC.Scope.Current";
-    private static boolean initialized = false;
+    protected static boolean initialized = false;
     protected static final ThreadLocal<Object> currentScope = new ThreadLocal<>();
 
     @Override

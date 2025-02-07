@@ -7,6 +7,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.example.interfaces.ICommand;
 import org.example.interfaces.IDependency;
 import org.example.ioc.IoC;
+import org.example.ioc.IocContextCleaner;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -21,7 +22,10 @@ class InitCommandTest {
 
     @BeforeEach
     void init() {
-        doInitialization();
+        IocContextCleaner.clean();
+        InitCommand initCommand = new InitCommand();
+        InitCommand.initialized = false;
+        initCommand.execute();
     }
 
     @Test
@@ -113,11 +117,6 @@ class InitCommandTest {
         ICommand clearScopeCommand = IoC.resolve("IoC.Scope.Current.Clear", new Object[]{currentScope});
         clearScopeCommand.execute();
         assertThrows(RuntimeException.class, () -> IoC.resolve("IoC.Scope.Parent", new Object[]{}));
-    }
-
-    private static void doInitialization() {
-        InitCommand initCommand = new InitCommand();
-        initCommand.execute();
     }
 
     @Test
