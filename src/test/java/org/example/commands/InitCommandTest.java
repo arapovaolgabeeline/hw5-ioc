@@ -46,9 +46,7 @@ class InitCommandTest {
     void shouldChangeScopeToNewOne() {
         ConcurrentMap<String, IDependency> parentScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
 
-        // создаст скоуп
         ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
-        // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
 
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
@@ -56,7 +54,6 @@ class InitCommandTest {
 
         ConcurrentMap<String, IDependency> childScope = IoC.resolve("IoC.Scope.Current", new Object[]{});
 
-        // надо взять любую зависимость из перента и поискать ее в текущем
         assertNotNull(parentScope);
         assertEquals(childScope, createdScope);
         assertNotEquals(childScope, parentScope);
@@ -68,7 +65,6 @@ class InitCommandTest {
 
         // создаст скоуп
         ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{desiredParentScope});
-        // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
         setScopeCommand.execute();
@@ -93,7 +89,6 @@ class InitCommandTest {
     @Test
     void shouldSwitchFromLocalScopeToRootScopeWhenScopeWasClear() {
         ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
-        // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
 
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
@@ -145,7 +140,6 @@ class InitCommandTest {
 
     @Test
     void shouldUseDifferentScopesForDifferentThreads() {
-        // проверим, что в разных тредах создаются разные скоупы
         MutableBoolean wasScopeCreated = new MutableBoolean();
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -161,7 +155,6 @@ class InitCommandTest {
 
         executor.submit(() -> {
             synchronized (wasScopeCreated) {
-                // assert current scope is root
                 ICommand parentScope = IoC.resolve("IoC.Scope.Parent", new Object[]{});
                 assertThrows(RuntimeException.class, parentScope::execute);
             }
@@ -169,9 +162,7 @@ class InitCommandTest {
     }
 
     private static void createAndSetNewScope() {
-        // создаст скоуп
         ConcurrentMap<String, IDependency> createdScope = IoC.resolve("IoC.Scope.Create", new Object[]{});
-        // посмотри сколько у него там зависимостей и потом ту которой нет но есть в перенте дерни
         assertNotNull(createdScope);
 
         ICommand setScopeCommand = IoC.resolve("IoC.Scope.Current.Set", new Object[]{createdScope});
